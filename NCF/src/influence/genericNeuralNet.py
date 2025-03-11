@@ -98,7 +98,7 @@ class GenericNeuralNet(object):
             os.makedirs(self.train_dir)
 
         # Initialize session
-        os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+        os.environ["CUDA_VISIBLE_DEVICES"] = "0"
         gpu_options = tf.GPUOptions(allow_growth=True)
         self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
         # config = tf.ConfigProto()
@@ -297,6 +297,7 @@ class GenericNeuralNet(object):
     def print_model_eval(self):
         # params_val = self.sess.run(self.params)
         test_idx = 999
+        #test_idx = 0
         if self.mini_batch == True:
             grad_loss_val, loss_no_reg_val, loss_val, train_acc_val = self.minibatch_mean_eval(
                 [self.grad_total_loss_op, self.loss_no_reg, self.total_loss, self.accuracy_op],

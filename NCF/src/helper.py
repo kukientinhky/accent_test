@@ -63,10 +63,10 @@ def get_scores(user, k, model):
     feed_dict = {
         model.input_placeholder: x
     }
-    scores = model.sess.run(model.logits, feed_dict=feed_dict)
-    visited = model.data_sets.train.visited[user]
-    score_dict = Counter({item: scores[item] for item in range(model.num_items) if item not in visited})
-    topk = [item for item, _ in score_dict.most_common(k)]
+    scores = model.sess.run(model.logits, feed_dict=feed_dict) # scores for all items
+    visited = model.data_sets.train.visited[user] # items that user has visited
+    score_dict = Counter({item: scores[item] for item in range(model.num_items) if item not in visited}) # scores for items that user has not visited
+    topk = [item for item, _ in score_dict.most_common(k)] # top k items have the highest scores
     return score_dict, topk
 
 
@@ -81,6 +81,7 @@ def get_model(use_recs=False):
     """
     args = parse_args()
     if args.dataset == 'movielens':
+        #batch_size = 1
         batch_size = 1246
         path = os.path.join(os.path.dirname(__file__), '../data')
         data_sets = load_movielens(path, batch=batch_size, use_recs=use_recs)

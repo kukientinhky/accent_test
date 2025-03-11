@@ -28,7 +28,7 @@ class Accent(AccentTemplate):
         visited = [int(model.data_sets.train.x[i, 1]) for i in u_indices]
         assert set(visited) == model.data_sets.train.visited[user]
         influences = np.zeros((ks[-1], len(u_indices)))
-        scores, topk = get_scores(user, ks[-1], model)
+        scores, topk = get_scores(user, ks[-1], model) # get scores for all items not visited and top ks[-1] recommendations
         for i in range(ks[-1]):
             test_idx = user * ks[-1] + i
             assert int(model.data_sets.test.x[test_idx, 0]) == user
