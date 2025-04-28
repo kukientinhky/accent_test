@@ -6,7 +6,7 @@ from NCF.src.helper import get_scores
 from commons.accent_template import AccentTemplate
 
 
-class Accent(AccentTemplate):
+class Simi(AccentTemplate):
     @staticmethod
     def find_counterfactual_multiple_k(user, ks, model, data, args):
         """
@@ -40,7 +40,7 @@ class Accent(AccentTemplate):
             train_idx = model.get_train_indices_of_test_case([test_idx])
             tmp, u_idx, _ = np.intersect1d(train_idx, u_indices, return_indices=True)
             assert np.all(tmp == u_indices)
-            tmp = -model.get_influence_on_test_loss([test_idx], train_idx)
+            tmp = -model.get_influence_on_test_loss_for_simi([test_idx], train_idx)
             influences[i] = tmp[u_idx] # influences[i] is the influence of the i-th item in top k on the test case
         res = None
         best_repl = -1
@@ -49,7 +49,7 @@ class Accent(AccentTemplate):
 
         ret = []
         for i in range(1, ks[-1]):
-            tmp_res, tmp_gap = Accent.try_replace(topk[i], scores[topk[0]] - scores[topk[i]], influences[0] - influences[i])
+            tmp_res, tmp_gap = Simi.try_replace(topk[i], scores[topk[0]] - scores[topk[i]], influences[0] - influences[i])
             if tmp_res is not None and (
                     res is None or len(tmp_res) < len(res) or (len(tmp_res) == len(res) and tmp_gap < best_gap)):
                 res, best_repl, best_i, best_gap = tmp_res, topk[i], i, tmp_gap

@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import os
 import tensorflow.compat.v1 as tf
 
 from NCF.src.helper import get_model
@@ -55,7 +55,8 @@ def get_new_scores(algo, ks):
     """
     input_files = [f"{algo}_{k}.csv" for k in ks]
 
-    home_dir = str(Path.home()) + '/pretrain-ncf'
+    #home_dir = str(Path.home()) + '/pretrain-ncf'
+    home_dir = os.getcwd() + '\pretrain-ncf'
     get_new_scores_main(home_dir, input_files, get_scores)
 
 

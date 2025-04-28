@@ -2,6 +2,7 @@ import pandas as pd
 import tensorflow.compat.v1 as tf
 
 from NCF.src.accent import Accent
+from NCF.src.Simi import Simi
 from NCF.src.fia import FIA
 from NCF.src.helper import get_model
 from NCF.src.pure_fia import PureFIA
@@ -22,6 +23,8 @@ def generate_cf(algo, ks):
         explaner = PureFIA()
     elif algo == 'fia':
         explaner = FIA()
+    elif algo == 'simi':
+        explaner = Simi()
     else:
         explaner = Accent()
 

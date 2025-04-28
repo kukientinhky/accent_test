@@ -81,8 +81,8 @@ def get_model(use_recs=False):
     """
     args = parse_args()
     if args.dataset == 'movielens':
-        #batch_size = 1
-        batch_size = 1246
+        batch_size = 1
+        #batch_size = 1246
         path = os.path.join(os.path.dirname(__file__), '../data')
         data_sets = load_movielens(path, batch=batch_size, use_recs=use_recs)
     else:

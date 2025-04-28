@@ -296,8 +296,8 @@ class GenericNeuralNet(object):
 
     def print_model_eval(self):
         # params_val = self.sess.run(self.params)
-        test_idx = 999
-        #test_idx = 0
+        #test_idx = 999
+        test_idx = 0
         if self.mini_batch == True:
             grad_loss_val, loss_no_reg_val, loss_val, train_acc_val = self.minibatch_mean_eval(
                 [self.grad_total_loss_op, self.loss_no_reg, self.total_loss, self.accuracy_op],
@@ -555,7 +555,7 @@ class GenericNeuralNet(object):
         hessian_vector_val = None
         for i in xrange(num_iter):
             feed_dict = self.fill_feed_dict_with_batch(self.data_sets.train, batch_size=0)
-            # Can optimize this
+            # Can optimize this noticedddddddddd
             feed_dict = self.update_feed_dict_with_v_placeholder(feed_dict, v)
             hessian_vector_val_temp = self.sess.run(self.hessian_vector, feed_dict=feed_dict)
             if hessian_vector_val is None:

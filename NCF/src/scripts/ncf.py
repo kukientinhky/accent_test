@@ -190,7 +190,78 @@ class NCF(GenericNeuralNet):
         test_grad.append(
             grad_total_loss_op[3][self.test_i * self.embedding_size:(1 + self.test_i) * self.embedding_size])
         return test_grad
+## similar 
+    def get_influence_on_test_loss_for_simi(self, test_indices, train_idx,
+                                   loss_type='normal_loss',
+                                   X=None, Y=None):
+        # If train_idx is None then use X and Y (phantom points)
+        # Need to make sure test_idx stays consistent between models
+        # because mini-batching permutes dataset order
+        print("Simi get_influence_on_test_loss_for_simi")
+        if train_idx is None:
+            if (X is None) or (Y is None): raise (ValueError, 'X and Y must be specified if using phantom points.')
+            if X.shape[0] != len(Y): raise (ValueError, 'X and Y must have the same length.')
+        else:
+            if (X is not None) or (
+                    Y is not None): raise (ValueError, 'X and Y cannot be specified if train_idx is specified.')
 
+        assert len(test_indices) == 1
+        self.test_index = test_indices[0]
+        self.train_indices_of_test_case = self.get_train_indices_of_test_case(test_indices)
+        self.params_test = self.get_test_params(test_index=test_indices)
+        self.vec_to_list_test = self.get_vec_to_list_fn_test()
+        self.grad_total_loss_op_test = self.get_test_grad(self.grad_total_loss_op)
+        self.grad_loss_no_reg_op_test = self.get_test_grad(self.grad_loss_no_reg_op)
+        self.grad_loss_r_test = self.get_test_grad(self.grad_loss_r)
+
+        ##self.v_placeholder_test = [tf.placeholder(tf.float32, shape=a.get_shape()) for a in self.params_test]
+        ##self.hessian_vector_test = self.hessian_vector_product_test(self.total_loss, self.params, self.v_placeholder_test)
+        test_grad_loss_r = self.get_r_grad_loss(test_indices, loss_type=loss_type)
+
+        print('Norm of test gradient: %s' % np.linalg.norm(np.concatenate(test_grad_loss_r)))
+
+        # if test_description is None:
+        #     test_description = test_indices
+
+        # approx_filename = os.path.join(self.train_dir, '%s-%s-%s-test-%s.npz' % (
+        #     self.model_name, approx_type, loss_type, test_description))
+        # if os.path.exists(approx_filename) and force_refresh == False:
+        #     inverse_hvp = list(np.load(approx_filename)['inverse_hvp'])
+        #     print('Loaded inverse HVP from %s' % approx_filename)
+        # else:
+        #     start_time = time.time()
+        #     inverse_hvp = self.get_inverse_hvp(
+        #         test_grad_loss_r,
+        #         approx_type,
+        #         approx_params)
+        #     np.savez(approx_filename, inverse_hvp=inverse_hvp)
+        #     print('Saved inverse HVP to %s' % approx_filename)
+
+        # duration_1 = time.time() - start_time
+        # print('Inverse HVP took %s sec' % duration_1)
+
+        start_time = time.time()
+        if train_idx is None:
+            num_to_remove = len(Y)
+            predicted_loss_diffs = np.zeros([num_to_remove])
+            for counter in np.arange(num_to_remove):
+                single_train_feed_dict = self.fill_feed_dict_manual(X[counter, :], [Y[counter]])
+                train_grad_loss_val = self.sess.run(self.grad_total_loss_op, feed_dict=single_train_feed_dict)
+                predicted_loss_diffs[counter] = np.dot(test_grad_loss_r, train_grad_loss_val) / (np.linalg.norm(test_grad_loss_r) * np.linalg.norm(train_grad_loss_val) + 1e-8)
+
+        else:
+            num_to_remove = len(self.train_indices_of_test_case)
+            predicted_loss_diffs = np.zeros([num_to_remove])
+            for counter, idx_to_remove in enumerate(self.train_indices_of_test_case):
+                single_train_feed_dict = self.fill_feed_dict_with_one_ex(self.data_sets.train, idx_to_remove)
+                train_grad_loss_val = self.sess.run(self.grad_total_loss_op_test, feed_dict=single_train_feed_dict)
+                predicted_loss_diffs[counter] = np.dot(test_grad_loss_r, train_grad_loss_val) / (np.linalg.norm(test_grad_loss_r) * np.linalg.norm(train_grad_loss_val) + 1e-8)
+
+        duration_2 = time.time() - start_time
+        print('Multiplying by %s train examples took %s sec' % (num_to_remove, duration_2))
+        #print("Total time is %s sec" % (duration_1 + duration_2))
+
+        return predicted_loss_diffs
     def get_influence_on_test_loss(self, test_indices, train_idx,
                                    approx_type='cg', approx_params=None, force_refresh=True, test_description=None,
                                    loss_type='normal_loss',
