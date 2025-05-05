@@ -62,7 +62,7 @@ def counterfactual2path(user, counterfactual_set):
     :return: a directory name
     """
     res = f'{user}-{"-".join(str(x) for x in sorted(counterfactual_set))}'
-    if len(res) < 200:
+    if len(res) < 150:
         return res
     return hashlib.sha224(res.encode()).hexdigest()
 
@@ -86,6 +86,8 @@ def read_row_from_result_file(row):
     topk = literal_eval(topk)
     counterfactual = literal_eval(counterfactual)
     if isinstance(predicted_scores, str):
+        predicted_scores = predicted_scores.replace("np.float32(", "").replace(")", "")
+        predicted_scores = predicted_scores.replace("np.float64(", "").replace(")", "")
         predicted_scores = literal_eval(predicted_scores)
     else:
         predicted_scores = None
@@ -177,6 +179,8 @@ def get_new_scores_main(home_dir, input_files, get_scores):
                 continue
             counterfactual = literal_eval(counterfactual)
             if isinstance(predicted_scores, str):
+                predicted_scores = predicted_scores.replace("np.float32(", "").replace(")", "")
+                predicted_scores = predicted_scores.replace("np.float64(", "").replace(")", "")
                 predicted_scores = literal_eval(predicted_scores)
             else:
                 predicted_scores = None
@@ -190,6 +194,7 @@ def get_new_scores_main(home_dir, input_files, get_scores):
                 continue
             assert len(scores) == 5
 
+            ## Note: if the counterfactual set is None, then the scores are all 0
             for i in range(5):
                 inputs.at[idx, f'actual_scores_{i}'] = str(list(scores[i]))
             s = np.mean(scores, axis=0)
@@ -224,7 +229,12 @@ def evaluate_files(parse_args, ks):
             topk = literal_eval(topk)
             counterfactual = literal_eval(counterfactual)
             assert item_id == topk[0]
-            actual_scores = literal_eval(row['actual_scores_avg'])
+            actual_scores = row['actual_scores_avg']
+            if isinstance(actual_scores, str):
+                print("kien")
+                actual_scores = actual_scores.replace("np.float32(", "").replace(")", "")
+                actual_scores = actual_scores.replace("np.float64(", "").replace(")", "")
+                actual_scores = literal_eval(actual_scores)
 
             replacement_rank = topk.index(replacement)
             if actual_scores[replacement_rank] > actual_scores[0]:
@@ -232,4 +242,7 @@ def evaluate_files(parse_args, ks):
                 set_size += len(counterfactual)
 
         print('swap', swap, swap / data.shape[0])
-        print('size', set_size / swap)
+        if (swap != 0):
+            print('size', set_size / swap)
+        else :
+            print('size', set_size)

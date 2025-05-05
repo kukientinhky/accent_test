@@ -247,7 +247,7 @@ class NCF(GenericNeuralNet):
             for counter in np.arange(num_to_remove):
                 single_train_feed_dict = self.fill_feed_dict_manual(X[counter, :], [Y[counter]])
                 train_grad_loss_val = self.sess.run(self.grad_total_loss_op, feed_dict=single_train_feed_dict)
-                predicted_loss_diffs[counter] = np.dot(np.concatenate(test_grad_loss_r), np.concatenate(train_grad_loss_val)) / (np.linalg.norm(np.concatenate(test_grad_loss_r)) * np.linalg.norm(np.concatenate(train_grad_loss_val)) + 1e-8)
+                predicted_loss_diffs[counter] = (np.dot(np.concatenate(test_grad_loss_r), np.concatenate(train_grad_loss_val)) / (np.linalg.norm(np.concatenate(test_grad_loss_r)) * np.linalg.norm(np.concatenate(train_grad_loss_val)) + 1e-8)) * 0.5
 
         else:
             num_to_remove = len(self.train_indices_of_test_case)
@@ -255,7 +255,7 @@ class NCF(GenericNeuralNet):
             for counter, idx_to_remove in enumerate(self.train_indices_of_test_case):
                 single_train_feed_dict = self.fill_feed_dict_with_one_ex(self.data_sets.train, idx_to_remove)
                 train_grad_loss_val = self.sess.run(self.grad_total_loss_op_test, feed_dict=single_train_feed_dict)
-                predicted_loss_diffs[counter] = np.dot(np.concatenate(test_grad_loss_r), np.concatenate(train_grad_loss_val)) / (np.linalg.norm(np.concatenate(test_grad_loss_r)) * np.linalg.norm(np.concatenate(train_grad_loss_val)) + 1e-8)
+                predicted_loss_diffs[counter] = (np.dot(np.concatenate(test_grad_loss_r), np.concatenate(train_grad_loss_val)) / (np.linalg.norm(np.concatenate(test_grad_loss_r)) * np.linalg.norm(np.concatenate(train_grad_loss_val)) + 1e-8)) * 0.5
 
         duration_2 = time.time() - start_time
         print('Multiplying by %s train examples took %s sec' % (num_to_remove, duration_2))
