@@ -7,7 +7,9 @@ import pandas as pd
 from RCF.src.dataset import Dataset
 from RCF.src.helper import parse_args, get_new_RCF_model
 from commons.helper import read_row_from_result_file, prepare_path
-
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 def retrain(ks):
 	"""
@@ -24,7 +26,8 @@ def retrain(ks):
 	inputs = pd.concat(inputs, ignore_index=True)
 	print(inputs)
 
-	home_dir = str(Path.home()) + '/pretrain-rcf-counterfactual'
+	#home_dir = str(Path.home()) + '/pretrain-rcf-counterfactual'
+	home_dir = os.getcwd() + '/pretrain-rcf-counterfactual'
 	np.random.seed(1802)
 	seeds = np.random.randint(1000, 10000, 5)
 	seeds[0] = 2512

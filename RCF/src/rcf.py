@@ -16,6 +16,7 @@ from RCF.src.Utilis import get_relational_data
 
 tf.disable_v2_behavior()
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
+os.environ["TF_DISABLE_SEGMENT_REDUCTION_OP_DETERMINISM_EXCEPTIONS"] = "True"
 # os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 tf.get_logger().setLevel('ERROR')
 

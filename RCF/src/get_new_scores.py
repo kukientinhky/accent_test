@@ -5,7 +5,7 @@ import numpy as np
 from RCF.src.dataset import Dataset
 from RCF.src.helper import parse_args, get_pretrained_RCF_model
 from commons.helper import counterfactual2path, prepare_new_scores, get_new_scores_main
-
+import os
 
 def get_scores(idx, user_id, item_id, topk, counterfactual, predicted_scores, replacement, item2scores, home_dir):
 	"""
@@ -55,7 +55,8 @@ def get_new_scores(ks):
 	args = parse_args()
 	input_files = [f"{args.algo}_{k}.csv" for k in ks]
 
-	home_dir = str(Path.home()) + '/pretrain-rcf-counterfactual'
+	#home_dir = str(Path.home()) + '/pretrain-rcf-counterfactual'
+	home_dir = os.getcwd() + '/pretrain-rcf-counterfactual'
 	get_new_scores_main(home_dir, input_files, get_scores)
 
 
